@@ -1,0 +1,12 @@
+my @common-sources = qw<
+    whereami.c
+>;
+my @win-sources = |@common-sources, 'win-runner.c';
+my @unix-sources = |@common-sources, 'unix-runner.c';
+
+task 'default' => 'build', {;}
+
+task 'build', {
+    run |qw[ gcc -g -o runner -I.], |@unix-sources;
+}
+
