@@ -156,6 +156,41 @@ char **read_config_args(FILE *file_handle, int *count) {
     return args;
 }
 
+// cwd must have a trailing '/'
+char *make_relative_path_absolute(char* path, char* cwd) {
+    char is_relative;
+    long runner;
+
+    is_relative = 0;
+
+    if (path[0] == '.') {
+        is_relative = 1;
+    }
+    else {
+        // Search for an unescaped \ in the path.
+        char skip = 0;
+        for (runner = 0; path[runner] != '\0'; runner++) {
+            if (skip)
+                skip = 0;
+            else if (path[runner] == '\\')
+                skip = 1;
+            else if (path[runner] == '/') {
+                is_relative = 1;
+                break;
+            }
+        }
+    }
+
+    if (is_relative) {
+        char *new_path = malloc((strlen(path) + strlen(cwd) + 1) * sizeof(char));
+        strcpy(new_path, cwd);
+        strcat(new_path, path);
+        return new_path;
+    }
+    else {
+        return path;
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -193,7 +228,7 @@ int main(int argc, char *argv[])
     fclose(exec_handle);
 
     // Trim to directory name
-    my_path[my_dir_name_len] = '\0';
+    my_path[my_dir_name_len + 1] = '\0';
 
     // config args + program args (without program name) + NULL
     exec_argc = config_argc + (argc - 1) + 1;
@@ -208,6 +243,9 @@ int main(int argc, char *argv[])
     for (c = 0; c < argc - 1; c++) {
         exec_argv[config_argc + c] = argv[c + 1];
     }
+
+    // Check if program path is relative and prepend dir name if so.
+    exec_argv[0] = make_relative_path_absolute(exec_argv[0], my_path);
 
     exec_argv[exec_argc - 1] = NULL;
 
