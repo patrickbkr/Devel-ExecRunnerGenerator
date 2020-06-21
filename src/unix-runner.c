@@ -6,12 +6,12 @@
 #include "whereami.h"
 #include "gen/exec_size.h"
 
-const int marker_size = 25;
-const char* marker = "EXEC_RUNNER_CONFIG_MARKER";
+const int marker_size = 33;
+const char* marker = "EXEC_RUNNER_WRAPPER_CONFIG_MARKER";
 
 long find_config(FILE *file_handle) {
     if (EXEC_LEN == 0)
-        fprintf(stderr, "This executable needs a sane size set to work.\n");
+        fprintf(stderr, "EXEC_RUNNER_WRAPPER: This executable needs a sane size set to work.\n");
     return EXEC_LEN;
 }
 
@@ -44,7 +44,7 @@ long read_arg(FILE *file_handle, char *arg, long arg_size) {
                 work_pos++;
             }
             else {
-                fprintf(stderr, "Invalid config found. No starting \" in config argument. Aborting.\n");
+                fprintf(stderr, "EXEC_RUNNER_WRAPPER: Invalid config found. No starting \" in config argument. Aborting.\n");
                 free(buf);
                 return -1;
             }
@@ -102,15 +102,15 @@ char **read_config_args(FILE *file_handle, int *count) {
 
     read_size = fread(read_buf, sizeof(char), marker_size + 1, file_handle);
     if (read_size != marker_size + 1) {
-        fprintf(stderr, "Config not found. Aborting.\n");
+        fprintf(stderr, "EXEC_RUNNER_WRAPPER: Config not found. Aborting.\n");
         return NULL;
     }
     if (memcmp(marker, read_buf, marker_size) != 0) {
-        fprintf(stderr, "Marker not found. Aborting.\n");
+        fprintf(stderr, "EXEC_RUNNER_WRAPPER: Marker not found. Aborting.\n");
         return NULL;
     }
     if (read_buf[marker_size] != '[') {
-        fprintf(stderr, "Invalid config. Doesn't start with '['. Aborting.\n");
+        fprintf(stderr, "EXEC_RUNNER_WRAPPER: Invalid config. Doesn't start with '['. Aborting.\n");
         return NULL;
     }
 
@@ -136,7 +136,7 @@ char **read_config_args(FILE *file_handle, int *count) {
         read_size = fread(read_buf, sizeof(char), 1, file_handle);
 
         if (read_size != 1) {
-            fprintf(stderr, "Invalid config. Separator or end marker missing. Aborting.\n");
+            fprintf(stderr, "EXEC_RUNNER_WRAPPER: Invalid config. Separator or end marker missing. Aborting.\n");
             return NULL;
         }
 
@@ -147,7 +147,7 @@ char **read_config_args(FILE *file_handle, int *count) {
             break;
         }
         else {
-            fprintf(stderr, "Invalid config. Unknown separator found. Aborting.\n");
+            fprintf(stderr, "EXEC_RUNNER_WRAPPER: Invalid config. Unknown separator found. Aborting.\n");
             return NULL;
         }
     }
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     execvp(exec_argv[0], exec_argv);
 
     // execvp doesn't return on successful exec.
-    fprintf(stderr, "ERROR: Failed to execute %s. Error code: %i\n", exec_argv[0], errno);
+    fprintf(stderr, "EXEC_RUNNER_WRAPPER: Failed to execute %s. Error code: %i\n", exec_argv[0], errno);
     return EXIT_FAILURE;
 }
 
