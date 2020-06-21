@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include "whereami.h"
-#include "exec_size.h"
+#include "gen/exec_size.h"
 
 const int marker_size = 25;
 const char* marker = "EXEC_RUNNER_CONFIG_MARKER";

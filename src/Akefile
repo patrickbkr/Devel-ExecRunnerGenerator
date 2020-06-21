@@ -7,18 +7,19 @@ my @unix-sources = |@common-sources, 'unix-runner.c';
 task 'default' => 'build', {;}
 
 task 'build', {
-    my $size_file = 'exec_size.h'.IO;
+    my $size_file = 'gen/exec_size.h'.IO;
+    my $exec_file = 'runner'.IO;
     $size_file.spurt: "const unsigned long EXEC_LEN = 0;\n";
-    run |qw[ gcc -g -o runner -I. ], |@unix-sources;
+    run |qw[ gcc -g -o ], $exec_file.relative, |qw[ -I. ], |@unix-sources;
 
-    my $size = 'runner'.IO.s;
+    my $size = $exec_file.s;
 
-    'runner'.IO.unlink;
+    $exec_file.unlink;
 
     $size_file.spurt: "const unsigned long EXEC_LEN = $size;\n";
-    run |qw[ gcc -g -o runner -I. ], |@unix-sources;
+    run |qw[ gcc -g -o ], $exec_file.relative, |qw[ -I. ], |@unix-sources;
 
-    if $size != 'runner'.IO.s {
+    if $size != $exec_file.s {
         die 'Compile size differs. This will break compilation. Aborting.';
     }
 }
