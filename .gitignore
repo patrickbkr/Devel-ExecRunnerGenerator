@@ -1,2 +1,5 @@
 *.o
 .precomp/
+/src/exec_size.h
+/src/runner
+/src/runner.exe
